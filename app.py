@@ -52,7 +52,6 @@ def export_tasks_to_json():
     )
 
 def import_tasks_from_json(file):
-    """Importar tareas desde un archivo JSON."""
     try:
         # Leer el contenido del archivo
         file_content = file.getvalue().decode("utf-8")
@@ -120,7 +119,12 @@ elif choice == "Ver Tareas":
         with st.container():
             for task in tasks:
                 # Agregar cada tarea en un contenedor individual
-                with st.expander(f"Tarea ID: {task.id} - {task.title}", expanded=True):
+                with st.expander(f"{task.title}", expanded=True):
+                    # Mostrar descripción de manera similar a "Estado"
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.write(task.description)
+
                     # Verificar si esta tarea está en modo edición
                     if st.session_state.editing_task_id == task.id:
                         # Modo edición
@@ -139,7 +143,6 @@ elif choice == "Ver Tareas":
                                 st.session_state.editing_task_id = None
                     else:
                         # Modo visualización
-                        st.write(f"**Descripción:** {task.description}")
                         st.write(f"**Estado:** {'Terminada' if task.status else 'Pendiente'}")
 
                         col1, col2, col3 = st.columns(3)
