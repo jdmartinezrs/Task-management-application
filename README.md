@@ -1,6 +1,6 @@
-# Task Manager
+# Task management application
 
-Una aplicación de gestión de tareas construida con Streamlit y SQLAlchemy.
+Una aplicación de gestión de tareas construida con Streamlit y SQLAlchemy/SQLite3.
 
 ## Características
 
@@ -10,7 +10,14 @@ Una aplicación de gestión de tareas construida con Streamlit y SQLAlchemy.
 - Exportar e importar tareas en formato JSON
 - Interfaz simple e intuitiva
 
+## Video
+
+![Video](https://img.youtube.com/vi/IRWg2tMIVlg/0.jpg)
+[Ver el funcionamiento de la app](https://www.youtube.com/watch?v=IRWg2tMIVlg)
+
 ## Instalación
+
+python version : 3.10.11
 
 1. **Clonar el repositorio**
 

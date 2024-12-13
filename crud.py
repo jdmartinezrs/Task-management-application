@@ -2,7 +2,6 @@ from models import Task
 from database import session
 
 def create_task(title, description, status=False):
-    """Crear una nueva tarea en la base de datos."""
     task = Task(
         title=title,
         description=description,
