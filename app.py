@@ -1,4 +1,7 @@
 import streamlit as st
+import json
+import os
+
 from crud import create_task, get_all_tasks, get_task_by_id, update_task, delete_task
 from database import Base, engine
 
@@ -26,12 +29,65 @@ def trigger_reload():
     # Reiniciar el estado de edición después de la recarga
     st.session_state.editing_task_id = None
 
+def export_tasks_to_json():
+    """Exportar todas las tareas a un archivo JSON."""
+    tasks = get_all_tasks()
+    
+    # Convertir las tareas a un formato serializable
+    tasks_data = [
+        {
+            "id": task.id, 
+            "title": task.title, 
+            "description": task.description, 
+            "status": task.status
+        } for task in tasks
+    ]
+    
+    # Abrir diálogo para guardar archivo
+    st.download_button(
+        label="📤 Descargar Tareas (JSON)",
+        data=json.dumps(tasks_data, indent=4, ensure_ascii=False),
+        file_name="tareas_exportadas.json",
+        mime="application/json"
+    )
+
+def import_tasks_from_json(file):
+    """Importar tareas desde un archivo JSON."""
+    try:
+        # Leer el contenido del archivo
+        file_content = file.getvalue().decode("utf-8")
+        tasks_data = json.loads(file_content)
+        
+        # Contador de tareas importadas
+        imported_count = 0
+        
+        # Importar cada tarea
+        for task in tasks_data:
+            # Verificar que la tarea tenga los campos necesarios
+            if all(key in task for key in ["title", "description", "status"]):
+                create_task(
+                    title=task["title"], 
+                    description=task.get("description", ""),
+                    status=task.get("status", False)
+                )
+                imported_count += 1
+        
+        st.success(f"✅ {imported_count} tareas importadas exitosamente.")
+        trigger_reload()
+    
+    except json.JSONDecodeError:
+        st.error("❌ El archivo JSON no es válido.")
+    except Exception as e:
+        st.error(f"❌ Error al importar tareas: {str(e)}")
+
 if choice == "Crear Tarea":
     st.subheader("Crear una nueva tarea")
 
     # Formulario para crear una tarea
     title = st.text_input("Título")
     description = st.text_area("Descripción")
+    
+    # Crear tarea
     if st.button("Crear Tarea"):
         if title:
             create_task(title, description)
@@ -40,11 +96,21 @@ if choice == "Crear Tarea":
         else:
             st.error("El título es obligatorio")
 
+    # Sección de Importación (después de Crear Tarea)
+    st.write("### 📥 Importar Tareas")
+    uploaded_file = st.file_uploader("Selecciona un archivo JSON", type=['json'])
+    if uploaded_file is not None:
+        if st.button("Importar Tareas"):
+            import_tasks_from_json(uploaded_file)
+
 elif choice == "Ver Tareas":
     st.subheader("Todas las Tareas")
 
     tasks = get_all_tasks()  # Obtiene todas las tareas de la base de datos
     if tasks:
+        # Botón para exportar tareas (junto a Todas las Tareas)
+        export_tasks_to_json()
+        
         # Invertir el orden de las tareas para mostrar las más recientes primero
         tasks = tasks[::-1]
 
