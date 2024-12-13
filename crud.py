@@ -1,11 +1,18 @@
 from models import Task
 from database import session
 
-def create_task(title,description=None):
-    new_task = Task(title=title,description=description)
-    session.add(new_task)
+def create_task(title, description, status=False):
+    """Crear una nueva tarea en la base de datos."""
+    task = Task(
+        title=title,
+        description=description,
+        status=status  # El campo status debe ser recibido y asignado
+    )
+    
+    # Agregar la tarea a la base de datos
+    session.add(task)
     session.commit()
-    return new_task
+    return task
 
 def get_all_tasks():
     return session.query(Task).all()

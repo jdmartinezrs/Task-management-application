@@ -45,7 +45,7 @@ def export_tasks_to_json():
     
     # Abrir diálogo para guardar archivo
     st.download_button(
-        label="📤 Descargar Tareas (JSON)",
+        label=" Descargar Tareas (JSON)",
         data=json.dumps(tasks_data, indent=4, ensure_ascii=False),
         file_name="tareas_exportadas.json",
         mime="application/json"
@@ -65,20 +65,22 @@ def import_tasks_from_json(file):
         for task in tasks_data:
             # Verificar que la tarea tenga los campos necesarios
             if all(key in task for key in ["title", "description", "status"]):
+                # Asegúrate de pasar el campo 'status' a create_task
                 create_task(
                     title=task["title"], 
                     description=task.get("description", ""),
-                    status=task.get("status", False)
+                    status=task.get("status", False)  # Pasar el valor de status
                 )
                 imported_count += 1
         
-        st.success(f"✅ {imported_count} tareas importadas exitosamente.")
+        st.success(f" {imported_count} tareas importadas exitosamente.")
         trigger_reload()
     
     except json.JSONDecodeError:
-        st.error("❌ El archivo JSON no es válido.")
+        st.error(" El archivo JSON no es válido.")
     except Exception as e:
-        st.error(f"❌ Error al importar tareas: {str(e)}")
+        st.error(f" Error al importar tareas: {str(e)}")
+
 
 if choice == "Crear Tarea":
     st.subheader("Crear una nueva tarea")
@@ -97,7 +99,7 @@ if choice == "Crear Tarea":
             st.error("El título es obligatorio")
 
     # Sección de Importación (después de Crear Tarea)
-    st.write("### 📥 Importar Tareas")
+    st.write("###  Importar Tareas")
     uploaded_file = st.file_uploader("Selecciona un archivo JSON", type=['json'])
     if uploaded_file is not None:
         if st.button("Importar Tareas"):

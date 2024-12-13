@@ -12,3 +12,5 @@ class Task(Base):
         return f"<Task(id={self.id}, title={self.title},description={self.description}, status={self.status})>"
     
 
+from sqlalchemy import Column, Integer, String, Boolean
+
