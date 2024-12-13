@@ -19,6 +19,16 @@ if "editing_task_id" not in st.session_state:
 # Título de la aplicación
 st.title("Gestión de Tareas")
 
+# Incluir el CSS para personalizar los botones
+st.markdown("""
+    <style>
+        .stButton button {
+            font-size: 18px;
+            font-weight: bold;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
 # Opciones del menú
 menu = ["Crear Tarea", "Ver Tareas"]
 choice = st.sidebar.selectbox("Menú", menu)
@@ -118,12 +128,12 @@ elif choice == "Ver Tareas":
         # Crear un contenedor para las tareas
         with st.container():
             for task in tasks:
-                # Agregar cada tarea en un contenedor individual
-                with st.expander(f"{task.title}", expanded=True):
-                    # Mostrar descripción de manera similar a "Estado"
+                # Agregar cada tarea en un contenedor individual con 'expanded=False' para que esté plegada por defecto
+                with st.expander(f"{task.title}", expanded=False):
+                    # Mostrar descripción con tamaño estándar
                     col1, col2 = st.columns(2)
                     with col1:
-                        st.write(task.description)
+                        st.write(f"<p style='font-size:18px; max-width:700px;'>{task.description}</p>", unsafe_allow_html=True)
 
                     # Verificar si esta tarea está en modo edición
                     if st.session_state.editing_task_id == task.id:
@@ -143,7 +153,7 @@ elif choice == "Ver Tareas":
                                 st.session_state.editing_task_id = None
                     else:
                         # Modo visualización
-                        st.write(f"**Estado:** {'Terminada' if task.status else 'Pendiente'}")
+                        st.write(f"<p style='font-size:16px;'><b>Estado:</b> {'Terminada' if task.status else 'Pendiente'}</p>", unsafe_allow_html=True)
 
                         col1, col2, col3 = st.columns(3)
                         with col1:
@@ -169,3 +179,4 @@ elif choice == "Ver Tareas":
                                 trigger_reload()  # Forzar actualización al eliminar la tarea
     else:
         st.info("No hay tareas disponibles")
+
