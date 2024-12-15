@@ -1,7 +1,7 @@
 import streamlit as st
 import json
-from crud import create_task, get_all_tasks, get_task_by_id, update_task, delete_task
-from database import Base, engine
+from src.crud import create_task, get_all_tasks, get_task_by_id, update_task, delete_task
+from src.database import Base, engine
 
 # Crear las tablas en la base de datos (si no existen)
 Base.metadata.create_all(engine)
@@ -9,6 +9,11 @@ Base.metadata.create_all(engine)
 # Inicializar estado para controlar la edición de tareas
 if "editing_task_id" not in st.session_state:
     st.session_state.editing_task_id = None
+
+# Mensaje de éxito personalizado
+def show_success_message(message):
+    # Fallback to st.success if toast is not available
+    st.success(message)
 
 # Título de la aplicación
 st.title("Gestión de Tareas")
@@ -60,16 +65,25 @@ def import_tasks_from_json(file):
 if choice == "Crear Tarea":
     st.subheader("Crear una nueva tarea")
 
-    title = st.text_input("Título")
-    description = st.text_area("Descripción")
-    
-    if st.button("Crear Tarea"):
-        if title:
-            create_task(title, description)
-            st.success("Tarea creada con éxito.")
-            st.experimental_rerun()  # Fuerza la recarga para reflejar el cambio
-        else:
-            st.error("El título es obligatorio")
+    # Usar st.form para manejar mejor el envío de formularios
+    with st.form(key='create_task_form', clear_on_submit=True):
+        title = st.text_input("Título")
+        description = st.text_area("Descripción")
+        
+        # Botón de submit dentro del formulario
+        submit_button = st.form_submit_button(label="Crear Tarea")
+
+        if submit_button:
+            if title:
+                try:
+                    # Intentar crear la tarea
+                    create_task(title, description)
+                    # Usar success para mostrar mensaje de éxito
+                    show_success_message("Tarea creada con éxito.")
+                except Exception as e:
+                    st.error(f"Error al crear la tarea: {str(e)}")
+            else:
+                st.error("El título es obligatorio")
 
     # Sección de Importación (después de Crear Tarea)
     st.write("###  Importar Tareas")
@@ -95,19 +109,27 @@ elif choice == "Ver Tareas":
                         st.write(f"<p style='font-size:18px; max-width:700px;'>{task.description}</p>", unsafe_allow_html=True)
 
                     if st.session_state.editing_task_id == task.id:
-                        edit_title = st.text_input("Nuevo Título", task.title, key=f"edit_title_{task.id}")
-                        edit_description = st.text_area("Nueva Descripción", task.description, key=f"edit_description_{task.id}")
-                        edit_status = st.checkbox("Marcar como terminada", value=task.status, key=f"edit_status_{task.id}")
+                        with st.form(key=f'edit_task_form_{task.id}', clear_on_submit=True):
+                            edit_title = st.text_input("Nuevo Título", task.title, key=f"edit_title_{task.id}")
+                            edit_description = st.text_area("Nueva Descripción", task.description, key=f"edit_description_{task.id}")
+                            edit_status = st.checkbox("Marcar como terminada", value=task.status, key=f"edit_status_{task.id}")
 
-                        col1, col2 = st.columns(2)
-                        with col1:
-                            if st.button("Guardar Cambios", key=f"save_{task.id}"):
+                            col1, col2 = st.columns(2)
+                            with col1:
+                                save_changes = st.form_submit_button("Guardar Cambios")
+                            
+                            with col2:
+                                cancel_edit = st.form_submit_button("Cancelar")
+
+                            if save_changes:
                                 update_task(task.id, edit_title, edit_description, edit_status)
-                                st.experimental_rerun()  # Fuerza la recarga para reflejar el cambio
-
-                        with col2:
-                            if st.button("Cancelar", key=f"cancel_{task.id}"):
+                                show_success_message("Tarea actualizada con éxito.")
                                 st.session_state.editing_task_id = None
+                                st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
+                            
+                            if cancel_edit:
+                                st.session_state.editing_task_id = None
+                                st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
                     else:
                         st.write(f"<p style='font-size:16px;'><b>Estado:</b> {'Terminada' if task.status else 'Pendiente'}</p>", unsafe_allow_html=True)
 
@@ -115,7 +137,8 @@ elif choice == "Ver Tareas":
                         with col1:
                             if st.button("Cambiar Estado", key=f"toggle_status_{task.id}"):
                                 update_task(task.id, task.title, task.description, not task.status)
-                                st.experimental_rerun()  # Fuerza la recarga para reflejar el cambio
+                                show_success_message("Estado de tarea actualizado.")
+                                st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
 
                         with col2:
                             if st.button(f"Editar", key=f"edit_{task.id}"):
@@ -124,6 +147,7 @@ elif choice == "Ver Tareas":
                         with col3:
                             if st.button(f"Eliminar", key=f"delete_{task.id}"):
                                 delete_task(task.id)
-                                st.experimental_rerun()  # Fuerza la recarga para reflejar el cambio
+                                show_success_message("Tarea eliminada con éxito.")
+                                st.rerun()  # Use st.rerun() instead of st.experimental_rerun()
     else:
         st.info("No hay tareas disponibles")

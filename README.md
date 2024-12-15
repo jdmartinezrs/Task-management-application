@@ -195,3 +195,6 @@ Elimina una tarea existente de la base de datos.
     - Si el archivo JSON tiene un formato inválido, se captura un error con `json.JSONDecodeError` y se muestra el mensaje `st.error("El archivo JSON no es válido.")`.
     - Si ocurre un error general durante la importación, se captura con `Exception` y se muestra el mensaje `st.error(f"Error al importar tareas: {str(e)}")`.
   - **Retorno Exitoso**: Si la importación es exitosa, se muestra el mensaje `st.success(f"{imported_count} tareas importadas exitosamente.")`.
+
+![Descripción de SonarQube](https://i.pinimg.com/1200x/55/af/8e/55af8e544ccd74752c8459846fb1c3a3.jpg)
+![Descripción de SonarQube](https://i.pinimg.com/1200x/b1/68/ca/b168ca9752f426b75000e93e7e6a44ea.jpg)

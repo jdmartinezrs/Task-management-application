@@ -1,5 +1,5 @@
 from sqlalchemy import Column,Integer, String, Boolean,Sequence
-from database import Base
+from src.database import Base
 
 class Task(Base):
     __tablename__ = "tasks"

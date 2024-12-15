@@ -1,5 +1,5 @@
-from models import Task
-from database import session
+from src.models import Task
+from src.database import session
 
 def create_task(title, description, status=False):
     task = Task(
